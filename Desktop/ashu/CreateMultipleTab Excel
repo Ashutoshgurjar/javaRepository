@@ -1,0 +1,216 @@
+import java.io.FileOutputStream;
+
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+
+import com.sforce.soap.enterprise.Connector;
+import com.sforce.soap.enterprise.EnterpriseConnection;
+import com.sforce.soap.enterprise.QueryResult;
+import com.sforce.soap.enterprise.sobject.Contact;
+import com.sforce.soap.enterprise.sobject.Account;
+import com.sforce.soap.enterprise.sobject.Opportunity;
+import com.sforce.soap.enterprise.sobject.Case;
+import com.sforce.soap.enterprise.sobject.Lead;
+import com.sforce.ws.ConnectionException;
+import com.sforce.ws.ConnectorConfig;
+
+public class CreateExcel{
+    
+    static final String USERNAME = "ashutoshgurjar@dev.com";
+    static final String PASSWORD = "ashutosh12345,Skcq61n4UO46ayxC5y4YAORC";
+    static EnterpriseConnection connection;
+    
+    public static void main(String[]args) {
+        
+        ConnectorConfig config = new ConnectorConfig();
+        config.setUsername(USERNAME);
+        config.setPassword(PASSWORD);
+        //config.setTraceMessage(true);
+        
+        try {
+            
+            connection = Connector.newConnection(config);
+            
+            // display some current settings
+            System.out.println("Auth EndPoint: "+config.getAuthEndpoint());
+            System.out.println("Service EndPoint: "+config.getServiceEndpoint());
+            System.out.println("Username: "+config.getUsername());
+            System.out.println("SessionId: "+config.getSessionId());
+            
+            // run the different examples
+            queryContacts();
+            
+        } catch (ConnectionException e1) {
+            e1.printStackTrace();
+        }  
+        
+        
+    }
+    
+    // queries and displays the 5 newest contacts
+    private static void queryContacts() {
+        
+        try {
+            
+            
+        }
+        catch ( Exception ex ) {
+            System.out.println(ex);
+        }
+        try {
+            String filename = "/home/simplyforce/Documents/NewExcelFile.xls";
+            HSSFWorkbook workbook = new HSSFWorkbook();
+            HSSFSheet sheet = workbook.createSheet("Contact");  
+            
+            HSSFRow rowhead = sheet.createRow((short)0);
+            rowhead.createCell(0).setCellValue("Id");
+            rowhead.createCell(1).setCellValue("Name");          
+            
+            // query for the 5 newest contacts      
+            QueryResult queryResults = connection.query("SELECT Id, FirstName, LastName, Account.Name " +
+                                                        "FROM Contact WHERE AccountId != NULL ORDER BY CreatedDate DESC LIMIT 5");
+            
+            int r = 1;
+            //System.out.println("queryResults..."+queryResults);
+            if (queryResults.getSize() > 0) {
+                for (int i=0;i<queryResults.getRecords().length;i++) {
+                    // cast the SObject to a strongly-typed Contact
+                    Contact c = (Contact)queryResults.getRecords()[i];
+                    
+                    HSSFRow row = sheet.createRow((short)r);
+                    row.createCell(0).setCellValue(c.getId());
+                    row.createCell(1).setCellValue(c.getAccount().getName());
+                    
+                    
+                    
+                    System.out.println("Id: " + c.getId() + " - Name: "+c.getFirstName()+" "+
+                                       c.getLastName()+" - Account: "+c.getAccount().getName());
+                r++;
+                }
+                
+            }
+                //---------------------------
+                
+            	HSSFSheet sheet1 = workbook.createSheet("Account");  
+                
+                rowhead = sheet1.createRow((short)0);
+                rowhead.createCell(0).setCellValue("Id");
+                rowhead.createCell(1).setCellValue("Name");          
+                
+                // query for the 5 newest contacts      
+                QueryResult queryResults1 = connection.query("SELECT Id, Name " +
+                                                             "FROM Account LIMIT 5");
+                
+                
+                r = 1;
+                //System.out.println("queryResults..."+queryResults);
+                if (queryResults1.getSize() > 0) {
+                    for (int i=0;i<queryResults1.getRecords().length;i++) {
+                        // cast the SObject to a strongly-typed Contact
+                        Account c = (Account)queryResults1.getRecords()[i];
+                        
+                        HSSFRow row = sheet1.createRow((short)r);
+                        row.createCell(0).setCellValue(c.getId());
+                        row.createCell(1).setCellValue(c.getName());
+                          r++;                  }
+                    
+                }
+                
+                
+                
+                //-----------------
+                
+                
+                HSSFSheet sheet2 = workbook.createSheet("Opportunity");  
+                
+                HSSFRow rowhead2 = sheet2.createRow((short)0);
+                rowhead2.createCell(0).setCellValue("Id");
+                rowhead2.createCell(1).setCellValue("Name");          
+                
+                // query for the 5 newest contacts      
+                QueryResult queryResults2 = connection.query("SELECT Id, Name " +
+                                                             "FROM Opportunity LIMIT 5");
+                
+                
+                r = 1;
+                //System.out.println("queryResults..."+queryResults);
+                if (queryResults2.getSize() > 0) {
+                    for (int i=0;i<queryResults2.getRecords().length;i++) {
+                        // cast the SObject to a strongly-typed Contact
+                    	Opportunity c = (Opportunity)queryResults2.getRecords()[i];
+                        
+                        HSSFRow row = sheet2.createRow((short)r);
+                        row.createCell(0).setCellValue(c.getId());
+                        row.createCell(1).setCellValue(c.getName());
+                                            
+                    }
+                    r++;
+                }
+                
+                
+                //------------
+                
+                HSSFSheet sheet3 = workbook.createSheet("Case");  
+                
+                HSSFRow rowhead3 = sheet3.createRow((short)0);
+                rowhead3.createCell(0).setCellValue("Id");
+                rowhead3.createCell(1).setCellValue("Status");          
+                
+                // query for the 5 newest contacts      
+                QueryResult queryResults3 = connection.query("SELECT Id, Status " +
+                                                             "FROM Case LIMIT 5");
+                
+                
+                r = 1; 
+                //System.out.println("queryResults..."+queryResults);
+                if (queryResults3.getSize() > 0) {
+                    for (int i=0;i<queryResults3.getRecords().length;i++) {
+                        // cast the SObject to a strongly-typed Contact
+                    	Case c = (Case)queryResults3.getRecords()[i];
+                        
+                        HSSFRow row = sheet3.createRow((short)r);
+                        row.createCell(0).setCellValue(c.getId());
+                        row.createCell(1).setCellValue(c.getStatus());
+                       r++;                    }
+                    
+                }
+                
+                
+              //------------
+                
+                HSSFSheet sheet4 = workbook.createSheet("Lead");  
+                
+                HSSFRow rowhead4 = sheet4.createRow((short)0);
+                rowhead4.createCell(0).setCellValue("Id");
+                rowhead4.createCell(1).setCellValue("Name");          
+                
+                // query for the 5 newest contacts      
+                QueryResult queryResults4 = connection.query("SELECT Id, Name " +
+                                                             "FROM Lead LIMIT 5");
+                
+                
+                r = 1;
+                //System.out.println("queryResults..."+queryResults);
+                if (queryResults4.getSize() > 0) {
+                    for (int i=0;i<queryResults4.getRecords().length;i++) {
+                        // cast the SObject to a strongly-typed Contact
+                    	Lead c = (Lead)queryResults4.getRecords()[i];
+                        
+                        HSSFRow row = sheet4.createRow((short)r);
+                        row.createCell(0).setCellValue(c.getId());
+                        row.createCell(1).setCellValue(c.getName());
+                            r++;                
+                    }
+                    
+                }
+                FileOutputStream fileOut1 = new FileOutputStream(filename);
+                workbook.write(fileOut1);
+                fileOut1.close();
+                System.out.println("Your excel file has been generated!");
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }     
+    }
+}
